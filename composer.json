@@ -1,0 +1,27 @@
+{
+    "name": "bag/digitalocean-spaces-helpers",
+    "type": "library",
+    "description": "Helper classes to interact with DigitalOcean spaces object storage using the AWS S3 SDK.",
+    "keywords": ["DigitalOcean", "Spaces", "AWS", "S3", "Object", "Storage"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Brandon Garcia",
+            "email": "public@bgarcia.dev",
+            "homepage": "https://bgarcia.dev",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "BAG\\Spaces\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.2",
+        "aws/aws-sdk-php": "^3.222"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.4"
+    }
+}
