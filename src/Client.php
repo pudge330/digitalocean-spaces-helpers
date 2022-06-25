@@ -12,17 +12,45 @@
  */
 namespace BAG\Spaces;
 
+use Exception;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use Aws\S3\ObjectUploader;
 use Aws\S3\MultipartUploader;
 
+/**
+ * DigitalOcean Spaces helper.
+ * Utilizes Amazon S3 PHP SDK.
+ */
 class Client {
+	const ACL_PRIVATE = 'private';
+	const ACL_PUBLIC = 'public-read';
+
+	/**
+	 * @var string Spaces api key
+	 */
 	protected $key;
+
+	/**
+	 * @var string Spaces api secret
+	 */
 	protected $secret;
+
+	/**
+	 * @var string Spaces endpoint url
+	 */
 	protected $endpoint;
+
+	/**
+	 * @var S3Client S3 client class
+	 */
 	protected $client;
 
+	/**
+	 * @param string Spaces api key
+	 * @param string Spaces api secret
+	 * @param string Spaces endpoint url
+	 */
 	public function __construct($key, $secret, $endpoint) {
 		$this->key = $key;
 		$this->secret = $secret;
@@ -30,16 +58,37 @@ class Client {
 		$this->client = self::createClient($key, $secret, $endpoint);
 	}
 
-	public function createSpace($name) {
+	/**
+	 * Create space.
+	 * 
+	 * @param string $name Name of space
+	 * 
+	 * @return bool
+	 */
+	public function createSpace(string $name) {
 		$names = $this->listSpaces(true);
 		if (!in_array($name, $names)) {
-			$this->client->createBucket([
-				'Bucket' => $name
-			]);
+			try {
+				$this->client->createBucket([
+					'Bucket' => $name
+				]);
+				return true;
+			}
+			catch (Exception $e) {
+				return false;
+			}
 		}
+		return false;
 	}
 
-	public function listSpaces($names = false) {
+	/**
+	 * List existing spaces.
+	 * 
+	 * @param bool $names Return names only
+	 * 
+	 * @param array
+	 */
+	public function listSpaces(bool $names = false) {
 		$spaces = $this->client->listBuckets();
 		if (!$names) {
 			return $spaces['Buckets'];
@@ -51,6 +100,11 @@ class Client {
 		return $names;
 	}
 
+	/**
+	 * Upload content.
+	 * 
+	 * @param string $content Content to add
+	 */
 	public function upload($content, $options) {
 		if (!array_key_exists('ACL', $options)) {
 			$options['ACL'] = 'private';
@@ -59,6 +113,12 @@ class Client {
 		$this->client->putObject($options);
 	}
 
+	/**
+	 * Upload file.
+	 * 
+	 * @param string $file File path
+	 * @param string $content Content to add
+	 */
 	public function uploadFile($file, $options) {
 		if (!array_key_exists('ACL', $options)) {
 			$options['ACL'] = 'private';
@@ -128,20 +188,69 @@ class Client {
 		return (string)$request->getUri();
 	}
 
-	public function deleteFile($file, $space) {
-		$this->client->deleteObject([
-			'Bucket' => $space,
-			'Key' => $file,
-		]);
+	/**
+	 * Delete object.
+	 * 
+	 * @param string $space Name of space
+	 * @param string $key Object key
+	 * 
+	 * @return bool
+	 */
+	public function deleteFile(string $space, string $key) {
+		try {
+			$this->client->deleteObject([
+				'Bucket' => $space,
+				'Key' => $key,
+			]);
+			return true;
+		}
+		catch (Exception $e) {
+			return false;
+		}
 	}
 
-	public function deleteSpace($space) {
-		$this->client->deleteBucket([
-			'Bucket' => $space,
-		]);
+	/**
+	 * Delete space.
+	 * 
+	 * @param string $space Name of space
+	 * 
+	 * @return bool
+	 */
+	public function deleteSpace(string $space) {
+		try {
+			$this->client->deleteBucket([
+				'Bucket' => $space,
+			]);
+			return true;
+		}
+		catch (Exception $e) {
+			return false;
+		}
 	}
 
-	public static function createClient($key, $secret, $endpoint) {
+	/**
+	 * Verify key exists in api result.
+	 * 
+	 * @param object $request Api result
+	 * @param string $key Value key
+	 * @param mixed $default Default value
+ 	 */
+	protected function verifyRequest(&$request, string $key, $default = []) {
+		if (!isset($request[$key])) {
+			$request[$key] = $default;
+		}
+	}
+
+	/**
+	 * Create S3 Client.
+	 * 
+	 * @param string $key      The api key
+	 * @param string $secret   The api secret
+	 * @param string $endpoint The api url endpoint
+	 * 
+	 * @return S3Client
+	 */
+	public static function createClient(string $key, string $secret, string $endpoint) {
 		return new S3Client([
 			'version' => 'latest',
 			'region' => 'us-east-1',
@@ -153,6 +262,15 @@ class Client {
 		]);
 	}
 
+	/**
+	 * Create Spaces Client.
+	 * 
+	 * @param string $key      The api key
+	 * @param string $secret   The api secret
+	 * @param string $endpoint The api url endpoint
+	 * 
+	 * @return Client
+	 */
 	public static function create($key, $secret, $endpoint) {
 		return new self($key, $secret, $endpoint);
 	}
