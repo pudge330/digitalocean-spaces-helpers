@@ -16,11 +16,15 @@ use Exception;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use Aws\S3\ObjectUploader;
-use Aws\S3\MultipartUploader;
+use Aws\S3\MultipartUploader
+use Aws\S3\Exception\S3MultipartUploadException;
 
 /**
  * DigitalOcean Spaces helper.
  * Utilizes Amazon S3 PHP SDK.
+ * 
+ * Documentation: https://docs.digitalocean.com/reference/api/spaces-api/
+ * Documentation: https://docs.aws.amazon.com/aws-sdk-php/v3/api/
  */
 class Client {
 	const ACL_PRIVATE = 'private';
@@ -47,11 +51,11 @@ class Client {
 	protected $client;
 
 	/**
-	 * @param string Spaces api key
-	 * @param string Spaces api secret
-	 * @param string Spaces endpoint url
+	 * @param string $key      Spaces api key
+	 * @param string $secret   Spaces api secret
+	 * @param string $endpoint Spaces endpoint url
 	 */
-	public function __construct($key, $secret, $endpoint) {
+	public function __construct(string $key, string $secret, string $endpoint) {
 		$this->key = $key;
 		$this->secret = $secret;
 		$this->endpoint = $endpoint;
@@ -66,8 +70,10 @@ class Client {
 	 * @return bool
 	 */
 	public function createSpace(string $name) {
-		$names = $this->listSpaces(true);
-		if (!in_array($name, $names)) {
+		$spaces = $this->listSpaces(true);
+		if ($spaces === false)
+			return false;
+		if (!in_array($name, $spaces)) {
 			try {
 				$this->client->createBucket([
 					'Bucket' => $name
@@ -82,121 +88,267 @@ class Client {
 	}
 
 	/**
-	 * List existing spaces.
+	 * Get list of spaces.
 	 * 
 	 * @param bool $names Return names only
 	 * 
-	 * @param array
+	 * @param array|false
 	 */
 	public function listSpaces(bool $names = false) {
-		$spaces = $this->client->listBuckets();
+		try {
+			$result = $this->client->listBuckets();
+		}
+		catch (Exception $e) {
+			return false;
+		}
+		$this->verifyRequest($result, 'Buckets');
 		if (!$names) {
-			return $spaces['Buckets'];
+			return $result['Buckets'];
 		}
 		$names = [];
-		array_walk($spaces['Buckets'], function($value) use (&$names) {
-			$names[] = $value['Name'];
+		array_walk($result['Buckets'], function($bucket) use (&$names) {
+			$names[] = $bucket['Name'];
 		});
 		return $names;
+	}
+
+	/**
+	 * Get list of objects.
+	 * 
+	 * @param string $space    Name of space
+	 * @param bool $keys       Return keys only
+	 * @param array $arguments Optional. Additional api arguments
+	 * 
+	 * @return array|false
+	 */
+	public function listObjects(string $space, bool $keys = false, array $arguments = []) {
+		$arguments = array_merge($arguments, [
+			'Bucket' => $space
+		]);
+		try {
+			$result = $this->client->listObjects($arguments);
+		}
+		catch (Exception $e) {
+			return false;
+		}
+		$this->verifyRequest($result, 'Contents');
+		if (!$keys) {
+			return $result['Contents'];
+		}
+		$keys = [];
+		array_walk($result['Contents'], function($object, $index) use (&$keys) {
+			$keys[] = $object['Key'];
+		});
+		return $keys;
+	}
+
+	/**
+	 * Get object.
+	 * 
+	 * @param string $space    Name of space
+	 * @param string $key      Object key
+	 * @param array $arguments Optional. Additional api arguments
+	 * 
+	 * @return array|false|null
+	 */
+	public function getObject(string $space, string $key, array $arguments = []) {
+		$baseKey = $this->baseKey($key);
+		$arguments = array_merge($arguments, [
+			'Prefix' => $baseKey
+		]);
+		$object = null;
+		do {
+			$maxKeys = 1000;
+			$startAfter = null;
+			$objects = $this->getObjects($space, false, array_merge($arguments, [
+				'MaxKeys' => $maxKeys,
+				'StartAfter' => $startAfter
+			]));
+			if ($objects === false) {
+				return false;
+			}
+			foreach ($objects as $o) {
+				$startAfter = $o['Key'];
+				if ($o['Key'] == $name) {
+					$object = $o;
+				}
+			}
+		} while (sizeof($obejects) || $object === null);
+		return $object;
 	}
 
 	/**
 	 * Upload content.
 	 * 
-	 * @param string $content Content to add
+	 * @param string $space    Name of space
+	 * @param string $key      Object key
+	 * @param string $content  Content to add
+	 * @param bool $public     Optional. Object is public
+	 * @param array $arguments Optional. Additional api arguments
+	 * 
+	 * @return string|false
 	 */
-	public function upload($content, $options) {
-		if (!array_key_exists('ACL', $options)) {
-			$options['ACL'] = 'private';
+	public function upload(string $space, string $key, string $content, bool $public = false, array $arguments = []) {
+		$arguments = array_merge($arguments, [
+			'Bucket' => $space,
+			'Key' => $key,
+			'ACL' => $public ? self::ACL_PUBLIC : self::ACL_PRIVATE,
+			'Body' => $content
+		]);
+		try {
+			return $this->client->putObject($arguments)['ObjectURL'];
 		}
-		$options['Body'] = $content;
-		$this->client->putObject($options);
+		catch (Exception $e) {
+			return false;
+		}
 	}
 
 	/**
 	 * Upload file.
 	 * 
-	 * @param string $file File path
-	 * @param string $content Content to add
+	 * @param string $space    Name of space
+	 * @param string $key      Object key
+	 * @param string $file     File path on disk
+	 * @param bool $public     Optional. Object is public
+	 * @param array $arguments Optional. Additional api arguments
+	 * 
+	 * @return string|false
 	 */
-	public function uploadFile($file, $options) {
-		if (!array_key_exists('ACL', $options)) {
-			$options['ACL'] = 'private';
-		}
-		$options['SourceFile'] = $file;
-		$this->client->putObject($options);
-	}
-
-	public function multipartUploadFile($file, $dest, $space, $public = false) {
-		$uploader = new MultipartUploader($this->client, $file, [
-			'bucket' => $space,
-			'key' => $dest,
-			'acl' => $public ? 'public-read' : 'private'
+	public function uploadFile(string $space, string $key, string $file, bool $public = false, array $arguments = []) {
+		$arguments = array_merge($arguments, [
+			'Bucket' => $space,
+			'Key' => $key,
+			'ACL' => $public ? self::ACL_PUBLIC : self::ACL_PRIVATE,
+			'SourceFile' => $file
 		]);
 		try {
-			$result = $uploader->upload();
-			return $result['ObjectURL'];
-		} catch (MultipartUploadException $e) {
+			return $this->client->putObject($arguments)['ObjectURL'];
+		}
+		catch (Exception $e) {
 			return false;
 		}
 	}
 
-	public function listFiles($space, $names = false) {
-		$files = $this->client->listObjects([
-			'Bucket' => $space,
-		]);
-		if (!$names) {
-			return $files['Contents'];
+	/**
+	 * Multipart file upload.
+	 * 
+	 * @param string $space    Name of space
+	 * @param string $key      Object key
+	 * @param string $file     File path on disk
+	 * @param bool $public     Optional. Object is public
+	 * @param array $arguments Optional. Additional api arguments
+	 * 
+	 * @return string|false
+	 */
+	public function multipartUploadFile(string $space, string $key, string $file, bool $public = false, array $arguments = []) {
+		try {
+			$uploader = new MultipartUploader($this->client, $file, [
+				'bucket' => $space,
+				'key' => $key,
+				'acl' => $public ? 'public-read' : 'private'
+			]);
+			return $uploader->upload()['ObjectURL'];
+		} catch (S3MultipartUploadException $e) {
+			return false;
 		}
-		$names = [];
-		array_walk($files['Contents'], function($value, $index) use (&$names) {
-			$names[] = $value['Key'];
-		});
-		return $names;
+		catch (Exception $e) {
+			return false;
+		}
 	}
 
-	public function download($file, $dest, $space) {
-		$result = $this->client->getObject([
-			'Bucket' => $space,
-			'Key' => $file
-		]);
-		file_put_contents($dest, $result['Body']);
+	/**
+	 * Downloads a file locally.
+	 * 
+	 * @param string $space       Name of space
+	 * @param string $key         Object key
+	 * @param string $destination File destination
+	 * 
+	 * @return bool
+	 */
+	public function download(string $space, string $key, string $destination) {
+		try {
+			$result = $this->client->getObject([
+				'Bucket' => $space,
+				'Key' => $key
+			]);
+			return file_put_contents($destination, $result['Body']);
+		}
+		catch (Exception $e) {
+			return false;
+		}
 	}
 
-	public function publicUrl($file, $space) {
+	/**
+	 * Get object public URL.
+	 * 
+	 * @param string $space Name of space
+	 * @param string $key   Object key
+	 * 
+	 * @return string
+	 */
+	public function publicUrl(string $space, string $key) {
 		return $this->client->getObjectUrl(
-			$space, $file
+			$space, $key
 		);
 	}
 
-	public function presignedDownload($file, $space, $duration = '+5 minutes') {
-		$cmd = $this->client->getCommand('GetObject', [
-			'Bucket' => $space,
-			'Key'    => $file
-		]);
-		$request = $this->client->createPresignedRequest($cmd, $duration);
-		return (string)$request->getUri();
+	/**
+	 * Generate a presigned download URL.
+	 * 
+	 * @param string $space    Name of space
+	 * @param string $key      Object key
+	 * @param string $duration Length of time URL is valid
+	 * 
+	 * @return string|bool
+	 */
+	public function presignedDownload(string $space, string $key, string $duration = '+5 minutes') {
+		try {
+			$cmd = $this->client->getCommand('GetObject', [
+				'Bucket' => $space,
+				'Key'    => $key
+			]);
+			$request = $this->client->createPresignedRequest($cmd, $duration);
+			return (string)$request->getUri();
+		}
+		catch (Exception $e) {
+			return false;
+		}
 	}
 
-	public function presignedUpload($file, $type, $space, $duration = '+5 minutes') {
-		$cmd = $this->client->getCommand('PutObject', [
-			'Bucket' => $space,
-			'Key'    => $file,
-			'ContentType' => $type
-		]);
-		$request = $this->client->createPresignedRequest($cmd, $duration);
-		return (string)$request->getUri();
+	/**
+	 * Generate a presigned upload URL.
+	 * 
+	 * @param string $space    Name of space
+	 * @param string $key      Object key
+	 * @param string $type     File format type
+	 * @param string $duration Length of time URL is valid
+	 * 
+	 * @return string
+	 */
+	public function presignedUpload(string $space, string $key, string $type, string $duration = '+5 minutes') {
+		try {
+			$cmd = $this->client->getCommand('PutObject', [
+				'Bucket' => $space,
+				'Key'    => $file,
+				'ContentType' => $type
+			]);
+			$request = $this->client->createPresignedRequest($cmd, $duration);
+			return (string)$request->getUri();
+		}
+		catch (Exception $e) {
+			return false;
+		}
 	}
 
 	/**
 	 * Delete object.
 	 * 
 	 * @param string $space Name of space
-	 * @param string $key Object key
+	 * @param string $key   Object key
 	 * 
 	 * @return bool
 	 */
-	public function deleteFile(string $space, string $key) {
+	public function delete(string $space, string $key) {
 		try {
 			$this->client->deleteObject([
 				'Bucket' => $space,
@@ -229,13 +381,27 @@ class Client {
 	}
 
 	/**
-	 * Verify key exists in api result.
+	 * Get base key. Similar to PHP dirname().
+	 * 
+	 * @param string $key Object key.
+	 * 
+	 * @return string
+	 */
+	public function baseKey(string $key) {
+		$key = preg_replace('/^\/|\/$/', '', $key);
+		$segments = explode('/', $key);
+		array_pop($segments);
+		return implode('/', $segments);
+	}
+
+	/**
+	 * Verify HTTP result has particular property.
 	 * 
 	 * @param object $request Api result
-	 * @param string $key Value key
-	 * @param mixed $default Default value
+	 * @param string $key     Value key
+	 * @param mixed $default  Default value
  	 */
-	protected function verifyRequest(&$request, string $key, $default = []) {
+	public function verifyRequest(&$request, string $key, $default = []) {
 		if (!isset($request[$key])) {
 			$request[$key] = $default;
 		}
