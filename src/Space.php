@@ -52,8 +52,8 @@ class Space {
 	 * 
 	 * @return array|false
 	 */
-	public function listObjects(bool $keys = false, array $arguments = []) {
-		return $this->client->listObjects($this->space, $keys, $arguments);
+	public function list(bool $keys = false, array $arguments = []) {
+		return $this->client->list($this->space, $keys, $arguments);
 	}
 
 	/**
@@ -64,8 +64,8 @@ class Space {
 	 * 
 	 * @return array|false|null
 	 */
-	public function getObject(string $key, array $arguments = []) {
-		return $this->client->getObject($this->space, $key, $arguments);
+	public function get(string $key, array $arguments = []) {
+		return $this->client->get($this->space, $key, $arguments);
 	}
 
 	/**

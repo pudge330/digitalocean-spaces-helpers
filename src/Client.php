@@ -16,7 +16,7 @@ use Exception;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use Aws\S3\ObjectUploader;
-use Aws\S3\MultipartUploader
+use Aws\S3\MultipartUploader;
 use Aws\S3\Exception\S3MultipartUploadException;
 
 /**
@@ -88,6 +88,25 @@ class Client {
 	}
 
 	/**
+	 * Delete space.
+	 * 
+	 * @param string $space Name of space
+	 * 
+	 * @return bool
+	 */
+	public function deleteSpace(string $space) {
+		try {
+			$this->client->deleteBucket([
+				'Bucket' => $space,
+			]);
+			return true;
+		}
+		catch (Exception $e) {
+			return false;
+		}
+	}
+
+	/**
 	 * Get list of spaces.
 	 * 
 	 * @param bool $names Return names only
@@ -121,12 +140,12 @@ class Client {
 	 * 
 	 * @return array|false
 	 */
-	public function listObjects(string $space, bool $keys = false, array $arguments = []) {
+	public function list(string $space, bool $keys = false, array $arguments = []) {
 		$arguments = array_merge($arguments, [
 			'Bucket' => $space
 		]);
 		try {
-			$result = $this->client->listObjects($arguments);
+			$result = $this->client->listObjectsV2($arguments);
 		}
 		catch (Exception $e) {
 			return false;
@@ -151,7 +170,7 @@ class Client {
 	 * 
 	 * @return array|false|null
 	 */
-	public function getObject(string $space, string $key, array $arguments = []) {
+	public function get(string $space, string $key, array $arguments = []) {
 		$baseKey = $this->baseKey($key);
 		$arguments = array_merge($arguments, [
 			'Prefix' => $baseKey
@@ -160,7 +179,7 @@ class Client {
 		do {
 			$maxKeys = 1000;
 			$startAfter = null;
-			$objects = $this->getObjects($space, false, array_merge($arguments, [
+			$objects = $this->list($space, false, array_merge($arguments, [
 				'MaxKeys' => $maxKeys,
 				'StartAfter' => $startAfter
 			]));
@@ -169,11 +188,11 @@ class Client {
 			}
 			foreach ($objects as $o) {
 				$startAfter = $o['Key'];
-				if ($o['Key'] == $name) {
+				if ($o['Key'] == $key) {
 					$object = $o;
 				}
 			}
-		} while (sizeof($obejects) || $object === null);
+		} while (sizeof($objects) && $object === null);
 		return $object;
 	}
 
@@ -353,25 +372,6 @@ class Client {
 			$this->client->deleteObject([
 				'Bucket' => $space,
 				'Key' => $key,
-			]);
-			return true;
-		}
-		catch (Exception $e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Delete space.
-	 * 
-	 * @param string $space Name of space
-	 * 
-	 * @return bool
-	 */
-	public function deleteSpace(string $space) {
-		try {
-			$this->client->deleteBucket([
-				'Bucket' => $space,
 			]);
 			return true;
 		}
