@@ -132,6 +132,20 @@ class Client {
 	}
 
 	/**
+	 * Check if space exists.
+	 * 
+	 * @param string $space Name of space
+	 * 
+	 * @return bool
+	 */
+	public function spaceExists(string $space) {
+		$spaces = $this->listSpaces(true);
+		if ($spaces === false)
+			return false;
+		return in_array($space, $spaces);
+	}
+
+	/**
 	 * Get list of objects.
 	 * 
 	 * @param string $space    Name of space
