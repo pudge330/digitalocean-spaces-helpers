@@ -211,6 +211,16 @@ class Client {
 	}
 
 	/**
+	 * Check if object exists.
+	 * 
+	 * @param string $space Name of space
+	 * @param string $key Object key
+	 * 
+	 * @return bool
+	 */
+	public function exists(string $space, string $key) {
+		return (bool)$this->get($space, $key);
+	}
 	 * Upload content.
 	 * 
 	 * @param string $space    Name of space
