@@ -221,17 +221,20 @@ class Client {
 	public function exists(string $space, string $key) {
 		return (bool)$this->get($space, $key);
 	}
+
+	/**
 	 * Upload content.
 	 * 
 	 * @param string $space    Name of space
 	 * @param string $key      Object key
-	 * @param string $content  Content to add
+	 * @param string|resource|Psr\Http\Message\StreamInterface
+	 * 				  $content Content to add
 	 * @param bool $public     Optional. Object is public
 	 * @param array $arguments Optional. Additional api arguments
 	 * 
 	 * @return string|false
 	 */
-	public function upload(string $space, string $key, string $content, bool $public = false, array $arguments = []) {
+	public function upload(string $space, string $key, $content, bool $public = false, array $arguments = []) {
 		$arguments = array_merge($arguments, [
 			'Bucket' => $space,
 			'Key' => $key,
