@@ -288,7 +288,7 @@ class Client {
 			$uploader = new MultipartUploader($this->client, $file, [
 				'bucket' => $space,
 				'key' => $key,
-				'acl' => $public ? 'public-read' : 'private'
+				'acl' => $public ? self::ACL_PUBLIC : self::ACL_PRIVATE
 			]);
 			return $uploader->upload()['ObjectURL'];
 		} catch (S3MultipartUploadException $e) {
