@@ -72,13 +72,14 @@ class Space {
 	 * Upload content.
 	 * 
 	 * @param string $key      Object key
-	 * @param string $content  Content to add
+	 * @param string|resource|Psr\Http\Message\StreamInterface $content
+	 * 						   Content to add
 	 * @param bool $public     Optional. Object is public
 	 * @param array $arguments Optional. Additional api arguments
 	 * 
 	 * @return string|false
 	 */
-	public function upload(string $key, string $content, bool $public = false, array $arguments = []) {
+	public function upload(string $key, $content, bool $public = false, array $arguments = []) {
 		return $this->client->upload($this->space, $key, $content, $public, $arguments);
 	}
 
