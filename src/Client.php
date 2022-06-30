@@ -190,9 +190,9 @@ class Client {
 			'Prefix' => $baseKey
 		]);
 		$object = null;
+		$startAfter = null;
 		do {
 			$maxKeys = 1000;
-			$startAfter = null;
 			$objects = $this->list($space, false, array_merge($arguments, [
 				'MaxKeys' => $maxKeys,
 				'StartAfter' => $startAfter
