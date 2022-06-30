@@ -227,8 +227,8 @@ class Client {
 	 * 
 	 * @param string $space    Name of space
 	 * @param string $key      Object key
-	 * @param string|resource|Psr\Http\Message\StreamInterface
-	 * 				  $content Content to add
+	 * @param string|resource|Psr\Http\Message\StreamInterface $content
+	 * 						   Content to add
 	 * @param bool $public     Optional. Object is public
 	 * @param array $arguments Optional. Additional api arguments
 	 * 
@@ -371,12 +371,12 @@ class Client {
 	 * 
 	 * @return string
 	 */
-	public function presignedUpload(string $space, string $key, string $type, string $duration = '+5 minutes') {
+	public function presignedUpload(string $space, string $key/*, string $type */, string $duration = '+5 minutes') {
 		try {
 			$cmd = $this->client->getCommand('PutObject', [
 				'Bucket' => $space,
-				'Key'    => $file,
-				'ContentType' => $type
+				'Key'    => $file
+				// 'ContentType' => $type
 			]);
 			$request = $this->client->createPresignedRequest($cmd, $duration);
 			return (string)$request->getUri();
