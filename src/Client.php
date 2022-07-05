@@ -317,7 +317,7 @@ class Client {
 				'Bucket' => $space,
 				'Key' => $key
 			]);
-			return file_put_contents($destination, $result['Body']);
+			return file_put_contents($destination, $result['Body']) !== false;
 		}
 		catch (Exception $e) {
 			return false;
