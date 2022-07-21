@@ -207,7 +207,7 @@ class Authorization {
 							"{$headers[2]}\n\n" .
 							"{$headers[1]}\n" .
 							"{$payloadHash}";
-		echo "\n\n{$canonicalRequest}\n\n";
+
 		$stringToSign = "AWS4-HMAC-SHA256\n" . 
 					   "{$datetimeYmdHis}\n" .
 					   "{$datetimeYmd}/{$region}/s3/aws4_request\n" .
@@ -217,7 +217,6 @@ class Authorization {
 		$dateRegionKey = hash_hmac('sha256', $region, $dateKey, true);
 		$dateRegionServiceKey = hash_hmac('sha256', "s3", $dateRegionKey, true);
 		$signingKey = hash_hmac('sha256', "aws4_request", $dateRegionServiceKey, true);
-
 		$signature = hash_hmac('sha256', $stringToSign, $signingKey);
 
 		$authorizationHeader = "AWS4-HMAC-SHA256 " .
