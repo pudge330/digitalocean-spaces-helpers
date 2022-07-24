@@ -245,17 +245,6 @@ class Client {
 	}
 
 	/**
-	 * Create an authorization signature header.
-	 * 
-	 * @param array $arguments Array of arguments
-	 * 
-	 * @return array
-	 */
-	public function createAuthorizationSignature(array $arguments = []) {
-		return $this->authorization->create($arguments);
-	}
-
-	/**
 	 * Get an objects ACL.
 	 * 
 	 * @param string $space Name of space
@@ -520,6 +509,15 @@ class Client {
 	}
 
 	/**
+	 * Create an authorization signature header.
+	 * 
+	 * @param array $arguments Array of arguments
+	 * 
+	 * @return array
+	 */
+	public function createAuthorizationSignature(array $arguments = []) {
+		return $this->authorization->create($arguments);
+	}
 	 * Create S3 Client.
 	 * 
 	 * @param string $key      The api key
