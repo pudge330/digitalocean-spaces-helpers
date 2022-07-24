@@ -69,6 +69,17 @@ class Space {
 	}
 
 	/**
+	 * Check if object exists.
+	 * 
+	 * @param string $key Object key
+	 * 
+	 * @return bool
+	 */
+	public function exists(string $key) {
+		return $this->client->exists($this->space, $key);
+	}
+
+	/**
 	 * Get an objects ACL.
 	 * 
 	 * @param string $key Object key
