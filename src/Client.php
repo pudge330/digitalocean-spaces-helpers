@@ -70,7 +70,7 @@ class Client {
 	/**
 	 * @param string $key      Spaces api key
 	 * @param string $secret   Spaces api secret
-	 * @param string $endpoint Spaces endpoint url
+	 * @param string $endpoint Spaces region
 	 */
 	public function __construct(string $key, string $secret, string $region) {
 		$this->key = $key;

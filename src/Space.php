@@ -33,12 +33,12 @@ class Space {
 	 * @param string $space    Name of space
 	 * @param string $key      Spaces api key
 	 * @param string $secret   Spaces api secret
-	 * @param string $endpoint Spaces endpoint url
+	 * @param string $endpoint Spaces region
 	 * @param bool $create     Optional. Create space on instantiation
 	 */
-	public function __construct($space, $key, $secret, $endpoint, $create = false) {
+	public function __construct(string $space, string $key, string $secret, string $region, bool $create = false) {
 		$this->space = $space;
-		$this->client = new Client($key, $secret, $endpoint);
+		$this->client = new Client($key, $secret, $region);
 		if ($create) {
 			$this->client->createSpace($space);
 		}
