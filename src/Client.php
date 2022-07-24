@@ -13,11 +13,13 @@
 namespace BAG\Spaces;
 
 use Exception;
+use SimpleXMLElement;
 use Aws\Exception\AwsException;
 use Aws\S3\S3Client;
 use Aws\S3\ObjectUploader;
 use Aws\S3\MultipartUploader;
 use Aws\S3\Exception\S3MultipartUploadException;
+use Symfony\Component\HttpClient;
 
 /**
  * DigitalOcean Spaces helper.
@@ -46,6 +48,11 @@ class Client {
 	protected $endpoint;
 
 	/**
+	 * @var string Region name
+	 */
+	protected $region;
+
+	/**
 	 * @var S3Client S3 client class
 	 */
 	protected $client;
@@ -55,11 +62,12 @@ class Client {
 	 * @param string $secret   Spaces api secret
 	 * @param string $endpoint Spaces endpoint url
 	 */
-	public function __construct(string $key, string $secret, string $endpoint) {
+	public function __construct(string $key, string $secret, string $region) {
 		$this->key = $key;
 		$this->secret = $secret;
-		$this->endpoint = $endpoint;
-		$this->client = self::createClient($key, $secret, $endpoint);
+		$this->region = $region;
+		$this->endpoint = "https://{$this->region}.digitaloceanspaces.com";
+		$this->client = self::createClient($key, $secret, $this->endpoint);
 	}
 
 	/**
