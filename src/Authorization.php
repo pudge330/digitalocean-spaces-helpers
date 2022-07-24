@@ -166,7 +166,7 @@ class Authorization {
 	 * 
 	 * @return array
 	 */
-	public function create(array $arguments = []) {
+	public function create(array $arguments) {
 		$arguments = array_merge([
 			'method' => 'GET',
 			'region' => null,

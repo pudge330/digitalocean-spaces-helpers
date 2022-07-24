@@ -515,7 +515,7 @@ class Client {
 	 * 
 	 * @return array
 	 */
-	public function createAuthorizationSignature(array $arguments = []) {
+	public function createAuthorizationSignature(array $arguments) {
 		return $this->authorization->create($arguments);
 	}
 
