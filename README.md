@@ -21,6 +21,16 @@ Main client class that can be used to manage spaces and objects.
 | $secret | string | false   | Spaces api secret       |
 | $region | string | false   | Spaces region, eg. nyc1 |
 
+```createSpace(string $name)```
+
+Create space.
+
+Returns true if space was created, false if it already existed and on failure.
+
+| Name  | Type   | Optional| Description   |
+|-------|--------|---------|---------------|
+| $name | string | false   | Name of space |
+
 ## BAG\Spaces\Space
 
 **Constants**
