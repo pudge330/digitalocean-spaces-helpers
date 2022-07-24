@@ -58,6 +58,16 @@ class Client {
 	protected $client;
 
 	/**
+	 * @var HttpClientInterface Http client object
+	 */
+	protected $httpClient;
+
+	/**
+	 * @var Authorization Authorization header class
+	 */
+	protected $authorization;
+
+	/**
 	 * @param string $key      Spaces api key
 	 * @param string $secret   Spaces api secret
 	 * @param string $endpoint Spaces endpoint url
@@ -68,6 +78,10 @@ class Client {
 		$this->region = $region;
 		$this->endpoint = "https://{$this->region}.digitaloceanspaces.com";
 		$this->client = self::createClient($key, $secret, $this->endpoint);
+		$this->httpClient = HttpClient\HttpClient::create([
+			'headers' => []
+		]);
+		$this->authorization = new Authorization($this->key, $this->secret);
 	}
 
 	/**
