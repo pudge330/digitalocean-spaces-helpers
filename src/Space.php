@@ -69,6 +69,29 @@ class Space {
 	}
 
 	/**
+	 * Get an objects ACL.
+	 * 
+	 * @param string $key Object key
+	 * 
+	 * @return string|bool
+	 */
+	public function getAcl(string $key) {
+		return $this->client->getAcl($this->space, $key);
+	}
+
+	/**
+	 * Set an objects ACL.
+	 * 
+	 * @param string $key Object key
+	 * @param string $acl Acl value
+	 * 
+	 * @return bool
+	 */
+	public function setAcl(string $key, string $acl) {
+		return $this->client->setAcl($this->space, $key, $acl);
+	}
+
+	/**
 	 * Upload content.
 	 * 
 	 * @param string $key      Object key
