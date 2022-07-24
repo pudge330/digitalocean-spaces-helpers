@@ -204,7 +204,7 @@ class Client {
 	 * @param string $key      Object key
 	 * @param array $arguments Optional. Additional api arguments
 	 * 
-	 * @return array|false|null
+	 * @return object|false|null
 	 */
 	public function get(string $space, string $key, array $arguments = []) {
 		$baseKey = $this->baseKey($key);
@@ -441,7 +441,6 @@ class Client {
 	 * 
 	 * @param string $space    Name of space
 	 * @param string $key      Object key
-	 * @param string $type     File format type
 	 * @param string $duration Length of time URL is valid
 	 * 
 	 * @return string
@@ -529,11 +528,11 @@ class Client {
 	}
 
 	/**
-	 * Create S3 Client.
+	 * Create S3Client.
 	 * 
-	 * @param string $key      The api key
-	 * @param string $secret   The api secret
-	 * @param string $endpoint The api url endpoint
+	 * @param string $key      Spaces api key
+	 * @param string $secret   Spaces api secret
+	 * @param string $endpoint Spaces api url endpoint
 	 * 
 	 * @return S3Client
 	 */
@@ -552,13 +551,13 @@ class Client {
 	/**
 	 * Create Spaces Client.
 	 * 
-	 * @param string $key      The api key
-	 * @param string $secret   The api secret
-	 * @param string $endpoint The api url endpoint
+	 * @param string $key    Spaces api key
+	 * @param string $secret Spaces api secret
+	 * @param string $region Spaces region
 	 * 
 	 * @return Client
 	 */
-	public static function create($key, $secret, $endpoint) {
-		return new self($key, $secret, $endpoint);
+	public static function create(string $key, string $secret, string $region) {
+		return new self($key, $secret, $region);
 	}
 }
