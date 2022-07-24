@@ -209,9 +209,9 @@ class Authorization {
 							"{$payloadHash}";
 
 		$stringToSign = "AWS4-HMAC-SHA256\n" . 
-					   "{$datetimeYmdHis}\n" .
-					   "{$datetimeYmd}/{$region}/s3/aws4_request\n" .
-					   hash('sha256', $canonicalRequest);
+						"{$datetimeYmdHis}\n" .
+						"{$datetimeYmd}/{$region}/s3/aws4_request\n" .
+						hash('sha256', $canonicalRequest);
 
 		$dateKey = hash_hmac('sha256', $datetimeYmd, "AWS4{$this->secret}", true);
 		$dateRegionKey = hash_hmac('sha256', $region, $dateKey, true);
