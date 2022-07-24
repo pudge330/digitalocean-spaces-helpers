@@ -245,6 +245,70 @@ class Client {
 	}
 
 	/**
+	 * Create an authorization signature header.
+	 * 
+	 * @param array $arguments Array of arguments
+	 * 
+	 * @return array
+	 */
+	public function createAuthorizationSignature(array $arguments = []) {
+		return $this->authorization->create($arguments);
+	}
+
+	/**
+	 * Get an objects ACL.
+	 * 
+	 * @param string $space Name of space
+	 * @param string $key   Object key
+	 * 
+	 * @return string|false
+	 */
+	public function getAcl(string $space, string $key) {
+		$method = 'GET';
+		$url = "https://{$space}.{$this->region}.digitaloceanspaces.com/{$key}?acl";
+		$headers = $this->createAuthorizationSignature([
+			'method' => $method,
+			'url' => $url,
+			'region' => $this->region
+		]);
+		$response = $this->httpClient->request($method, $url, [
+			'headers' => $headers[0]
+		]);
+		if ($response->getStatusCode() !== 200) { return false; }
+		$xml = new SimpleXMLElement($response->getContent());
+		$isPublic = sizeof($xml->AccessControlList->Grant) > 1;
+		return $isPublic ? self::ACL_PUBLIC : self::ACL_PRIVATE;
+	}
+
+	/**
+	 * Set an objects ACL.
+	 * 
+	 * @param string $space Name of space
+	 * @param string $key   Object key
+	 * @param string $acl   Acl value
+	 * 
+	 * @return bool
+	 */
+	public function setAcl(string $space, string $key, string $acl) {
+		$acl = $acl === self::ACL_PUBLIC ? self::ACL_PUBLIC : self::ACL_PRIVATE;
+		$method = 'PUT';
+		$url = "https://{$space}.{$this->region}.digitaloceanspaces.com/{$key}?acl";
+		$headers = $this->createAuthorizationSignature([
+			'method' => $method,
+			'url' => $url,
+			'region' => $this->region,
+			'headers' => [
+				'x-amz-acl' => $acl
+			]
+		]);
+		$response = $this->httpClient->request($method, $url, [
+			'headers' => $headers[0]
+		]);
+		if ($response->getStatusCode() !== 200) { return false; }
+		return true;
+	}
+
+	/**
 	 * Upload content.
 	 * 
 	 * @param string $space    Name of space
