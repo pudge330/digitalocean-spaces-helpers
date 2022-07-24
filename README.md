@@ -82,7 +82,7 @@ Returns object, null if not found or false on failure.
 | Name       | Type   | Optional| Description              |
 |------------|--------|---------|--------------------------|
 | $space     | string | false   | Name of space            |
-| $key       | string | true    | Object key               |
+| $key       | string | false   | Object key               |
 | $arguments | array  | true    | Additional api arguments |
 
 ### ```exists($space, $key)```
@@ -91,10 +91,10 @@ Check if object exists.
 
 Returns true if object exists, false otherwise.
 
-| Name       | Type   | Optional| Description   |
-|------------|--------|---------|---------------|
-| $space     | string | false   | Name of space |
-| $key       | string | true    | Object key    |
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $space | string | false   | Name of space |
+| $key   | string | false   | Object key    |
 
 ### ```getAcl($space, $key)```
 
@@ -102,10 +102,10 @@ Get an objects ACL.
 
 Return string or false on failure.
 
-| Name       | Type   | Optional| Description   |
-|------------|--------|---------|---------------|
-| $space     | string | false   | Name of space |
-| $key       | string | true    | Object key    |
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $space | string | false   | Name of space |
+| $key   | string | false   | Object key    |
 
 ### ```setAcl($space, $key, $acl)```
 
@@ -113,10 +113,11 @@ Set an objects ACL.
 
 Returns true or false on failure.
 
-| Name       | Type   | Optional| Description   |
-|------------|--------|---------|---------------|
-| $space     | string | false   | Name of space |
-| $key       | string | true    | Object key    |
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $space | string | false   | Name of space |
+| $key   | string | false   | Object key    |
+| $acl   | string | false   | ACL value     |
 
 ### ```upload($space, $key, $content, $public = false, $arguments = [])```
 
