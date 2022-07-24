@@ -10,8 +10,8 @@ Main client class that can be used to manage spaces and objects.
 
 **Constants**
 
-ACL_PUBLIC = 'public-read'
-ACL_PRIVATE = 'private'
+- ACL_PUBLIC = 'public-read'
+- ACL_PRIVATE = 'private'
 
 ```constructor(string $key, string $secret, string $region)```
 
@@ -25,8 +25,8 @@ ACL_PRIVATE = 'private'
 
 **Constants**
 
-ACL_PUBLIC = 'public-read'
-ACL_PRIVATE = 'private'
+- ACL_PUBLIC = 'public-read'
+- ACL_PRIVATE = 'private'
 
 Space class that can be used to manage a single space and its objects.
 
