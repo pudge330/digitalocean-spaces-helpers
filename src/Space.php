@@ -203,4 +203,13 @@ class Space {
 	public function baseKey(string $key) {
 		return $this->client->baseKey($key);
 	}
+
+	/**
+	 * Get Client instance.
+	 * 
+	 * @return Client
+	 */
+	public function getClient() {
+		return $this->client;
+	}
 }
