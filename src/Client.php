@@ -518,6 +518,17 @@ class Client {
 	public function createAuthorizationSignature(array $arguments = []) {
 		return $this->authorization->create($arguments);
 	}
+
+	/**
+	 * Get S3Client instance.
+	 * 
+	 * @return S3Client
+	 */
+	public function getClient() {
+		return $this->client;
+	}
+
+	/**
 	 * Create S3 Client.
 	 * 
 	 * @param string $key      The api key
