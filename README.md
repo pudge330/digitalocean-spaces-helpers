@@ -11,7 +11,9 @@ This library is fairly new and the api for various methods could change in the u
 - Usage examples.
 - Discontinuing use of AWS S3 SDK and implementing fully with http api instead
 
-## BAG\Spaces\Client
+## Classes
+
+### BAG\Spaces\Client
 
 Main client class that can be used to manage spaces and objects.
 
@@ -20,7 +22,7 @@ Main client class that can be used to manage spaces and objects.
 - ACL_PUBLIC = 'public-read'
 - ACL_PRIVATE = 'private'
 
-### ```constructor($key, $secret, $region)```
+#### ```constructor($key, $secret, $region)```
 
 | Name    | Type   | Optional| Description             |
 |---------|--------|---------|-------------------------|
@@ -28,7 +30,7 @@ Main client class that can be used to manage spaces and objects.
 | $secret | string | false   | Spaces api secret       |
 | $region | string | false   | Spaces region, eg. nyc1 |
 
-### ```createSpace($name)```
+#### ```createSpace($name)```
 
 Create space.
 
@@ -38,7 +40,7 @@ Returns true if space was created, false if it already existed and on failure.
 |-------|--------|---------|---------------|
 | $name | string | false   | Name of space |
 
-### ```deleteSpace($name)```
+#### ```deleteSpace($name)```
 
 Delete space.
 
@@ -48,7 +50,7 @@ Returns false if space was deleted, false otherwise.
 |-------|--------|---------|---------------|
 | $name | string | false   | Name of space |
 
-### ```listSpaces($names = false)```
+#### ```listSpaces($names = false)```
 
 Get list of spaces.
 
@@ -58,7 +60,7 @@ Returns list of available spaces.
 |--------|------|---------|-------------------|
 | $names | bool | true    | Return names only |
 
-### ```spaceExists($space)```
+#### ```spaceExists($space)```
 
 Check if space exists.
 
@@ -68,7 +70,7 @@ Returns true if space exists, false otherwise.
 |--------|--------|---------|---------------|
 | $space | string | false   | Name of space |
 
-### ```list($space, $keys = false, $arguments = [])```
+#### ```list($space, $keys = false, $arguments = [])```
 
 Get list of objects.
 
@@ -80,7 +82,7 @@ Returns list of objects, false on failure.
 | $keys      | bool   | true    | Return keys only         |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```get($space, $key, $arguments = [])```
+#### ```get($space, $key, $arguments = [])```
 
 Get object.
 
@@ -92,7 +94,7 @@ Returns object, null if not found or false on failure.
 | $key       | string | false   | Object key               |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```exists($space, $key)```
+#### ```exists($space, $key)```
 
 Check if object exists.
 
@@ -103,7 +105,7 @@ Returns true if object exists, false otherwise.
 | $space | string | false   | Name of space |
 | $key   | string | false   | Object key    |
 
-### ```getAcl($space, $key)```
+#### ```getAcl($space, $key)```
 
 Get an objects ACL.
 
@@ -114,7 +116,7 @@ Return string or false on failure.
 | $space | string | false   | Name of space |
 | $key   | string | false   | Object key    |
 
-### ```setAcl($space, $key, $acl)```
+#### ```setAcl($space, $key, $acl)```
 
 Set an objects ACL.
 
@@ -126,7 +128,7 @@ Returns true or false on failure.
 | $key   | string | false   | Object key    |
 | $acl   | string | false   | ACL value     |
 
-### ```upload($space, $key, $content, $public = false, $arguments = [])```
+#### ```upload($space, $key, $content, $public = false, $arguments = [])```
 
 Upload content.
 
@@ -140,7 +142,7 @@ Return key as string if successful or false on failure.
 | $public    | bool                                                   | true    | Object is public         |
 | $arguments | array                                                  | true    | Additional api arguments |
 
-### ```uploadFile($space, $key, $file, $public = false, $arguments = [])```
+#### ```uploadFile($space, $key, $file, $public = false, $arguments = [])```
 
 Upload file.
 
@@ -154,7 +156,7 @@ Return key as string if successful or false on failure.
 | $public    | bool   | true    | Object is public         |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```multipartUploadFile($space, $key, $file, $public = false, $arguments = [])```
+#### ```multipartUploadFile($space, $key, $file, $public = false, $arguments = [])```
 
 Multipart file upload.
 
@@ -168,7 +170,7 @@ Return key as string if successful or false on failure.
 | $public    | bool   | true    | Object is public         |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```download($space, $key, $destination)```
+#### ```download($space, $key, $destination)```
 
 Downloads a file locally.
 
@@ -180,7 +182,7 @@ Returns true if file downloaded successfully or false on failure.
 | $key         | string | false   | Object key       |
 | $destination | string | false   | File destination |
 
-### ```publicUrl($space, $key)```
+#### ```publicUrl($space, $key)```
 
 Get object public URL.
 
@@ -191,7 +193,7 @@ Returns a URL string.
 | $space | string | false   | Name of space |
 | $key   | string | false   | Object key    |
 
-### ```presignedDownload($space, $key, $duration = '+5 minutes')```
+#### ```presignedDownload($space, $key, $duration = '+5 minutes')```
 
 Generate a presigned download URL.
 
@@ -203,7 +205,7 @@ Returns presigned download URL as a string.
 | $key      | string | false   | Object key                                    |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
 
-### ```presignedUpload($space, $key, $duration = '+5 minutes')```
+#### ```presignedUpload($space, $key, $duration = '+5 minutes')```
 
 Generate a presigned upload URL.
 
@@ -215,7 +217,7 @@ Returns presigned upload URL as a string.
 | $key      | string | false   | Object key                                    |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
 
-### ```delete($space, $key)```
+#### ```delete($space, $key)```
 
 Delete object.
 
@@ -226,7 +228,7 @@ Returns true on success, false on failure.
 | $space | string | false   | Name of space |
 | $key   | string | false   | Object key    |
 
-### ```baseKey(string $key)```
+#### ```baseKey(string $key)```
 
 Get base key. Similar to PHP dirname().
 
@@ -236,7 +238,7 @@ Returns string.
 |------|--------|---------|-------------|
 | $key | string | false   | Object key  |
 
-### ```verifyRequest(&$request, $key, $default = [])```
+#### ```verifyRequest(&$request, $key, $default = [])```
 
 Verify HTTP result has particular property.
 
@@ -246,7 +248,7 @@ Verify HTTP result has particular property.
 | $key      | string | false   | Value key     |
 | $default  | mixed  | true    | Default value |
 
-### ```createAuthorizationSignature($arguments = [])```
+#### ```createAuthorizationSignature($arguments = [])```
 
 Create an authorization signature header.
 
@@ -256,13 +258,13 @@ Returns an array. First item being an array of headers use for api authorization
 |------------|--------|---------|-------------------------------------------|
 | $arguments | array  | false   | Arguments required to construct signature |
 
-### ```getClient()```
+#### ```getClient()```
 
 Get S3Client instance.
 
 Returns S3Client.
 
-### **static** ```createClient($key, $secret, $endpoint)```
+#### **static** ```createClient($key, $secret, $endpoint)```
 
 Create S3Client.
 
@@ -274,7 +276,7 @@ Returns S3Client instance.
 | $secret   | string | false   | Spaces api secret |
 | $endpoint | string | false   | Api endpoint      |
 
-### **static** ```create($key, $secret, $endpoint)```
+#### **static** ```create($key, $secret, $endpoint)```
 
 Create Spaces Client.
 
@@ -286,7 +288,7 @@ Returns Client instance.
 | $secret | string | false   | Spaces api secret       |
 | $region | string | false   | Spaces region, eg. nyc1 |
 
-## BAG\Spaces\Space
+### BAG\Spaces\Space
 
 **Constants**
 
@@ -305,7 +307,7 @@ Space class that can be used to manage a single space and its objects.
 | $region | string | false   | Spaces region, eg. nyc1      |
 | $create | string | true    | Create space if non-existent |
 
-### ```list($keys = false, $arguments = [])```
+#### ```list($keys = false, $arguments = [])```
 
 Get list of objects.
 
@@ -316,7 +318,7 @@ Returns list of objects, false on failure.
 | $keys      | bool   | true    | Return keys only         |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```get($key, $arguments = [])```
+#### ```get($key, $arguments = [])```
 
 Get object.
 
@@ -327,7 +329,7 @@ Returns object, null if not found or false on failure.
 | $key       | string | false   | Object key               |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```exists($key)```
+#### ```exists($key)```
 
 Check if object exists.
 
@@ -337,7 +339,7 @@ Returns true if object exists, false otherwise.
 |--------|--------|---------|---------------|
 | $key   | string | false   | Object key    |
 
-### ```getAcl($key)```
+#### ```getAcl($key)```
 
 Get an objects ACL.
 
@@ -347,7 +349,7 @@ Return string or false on failure.
 |--------|--------|---------|---------------|
 | $key   | string | false   | Object key    |
 
-### ```setAcl($key, $acl)```
+#### ```setAcl($key, $acl)```
 
 Set an objects ACL.
 
@@ -358,7 +360,7 @@ Returns true or false on failure.
 | $key   | string | false   | Object key    |
 | $acl   | string | false   | ACL value     |
 
-### ```upload($key, $content, $public = false, $arguments = [])```
+#### ```upload($key, $content, $public = false, $arguments = [])```
 
 Upload content.
 
@@ -371,7 +373,7 @@ Return key as string if successful or false on failure.
 | $public    | bool                                                   | true    | Object is public         |
 | $arguments | array                                                  | true    | Additional api arguments |
 
-### ```uploadFile($key, $file, $public = false, $arguments = [])```
+#### ```uploadFile($key, $file, $public = false, $arguments = [])```
 
 Upload file.
 
@@ -384,7 +386,7 @@ Return key as string if successful or false on failure.
 | $public    | bool   | true    | Object is public         |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```multipartUploadFile($key, $file, $public = false, $arguments = [])```
+#### ```multipartUploadFile($key, $file, $public = false, $arguments = [])```
 
 Multipart file upload.
 
@@ -397,7 +399,7 @@ Return key as string if successful or false on failure.
 | $public    | bool   | true    | Object is public         |
 | $arguments | array  | true    | Additional api arguments |
 
-### ```download($key, $destination)```
+#### ```download($key, $destination)```
 
 Downloads a file locally.
 
@@ -408,7 +410,7 @@ Returns true if file downloaded successfully or false on failure.
 | $key         | string | false   | Object key       |
 | $destination | string | false   | File destination |
 
-### ```publicUrl($key)```
+#### ```publicUrl($key)```
 
 Get object public URL.
 
@@ -418,7 +420,7 @@ Returns a URL string.
 |--------|--------|---------|---------------|
 | $key   | string | false   | Object key    |
 
-### ```presignedDownload($key, $duration = '+5 minutes')```
+#### ```presignedDownload($key, $duration = '+5 minutes')```
 
 Generate a presigned download URL.
 
@@ -429,7 +431,7 @@ Returns presigned download URL as a string.
 | $key      | string | false   | Object key                                    |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
 
-### ```presignedUpload($key, $duration = '+5 minutes')```
+#### ```presignedUpload($key, $duration = '+5 minutes')```
 
 Generate a presigned upload URL.
 
@@ -440,7 +442,7 @@ Returns presigned upload URL as a string.
 | $key      | string | false   | Object key                                    |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
 
-### ```delete($key)```
+#### ```delete($key)```
 
 Delete object.
 
@@ -450,7 +452,7 @@ Returns true on success, false on failure.
 |--------|--------|---------|---------------|
 | $key   | string | false   | Object key    |
 
-### ```baseKey(string $key)```
+#### ```baseKey(string $key)```
 
 Get base key. Similar to PHP dirname().
 
@@ -460,13 +462,13 @@ Returns string.
 |------|--------|---------|-------------|
 | $key | string | false   | Object key  |
 
-### ```getClient()```
+#### ```getClient()```
 
 Get Client instance.
 
 Returns Client.
 
-## BAG\Spaces\Authorization
+### BAG\Spaces\Authorization
 
 Class that assists with generating http authorization headers.
 
@@ -477,7 +479,7 @@ Class that assists with generating http authorization headers.
 | $key    | string | false   | Spaces api key               |
 | $secret | string | false   | Spaces api secret            |
 
-### ```create($arguments)```
+#### ```create($arguments)```
 
 Create authorization headers and return full set of headers generated.
 
