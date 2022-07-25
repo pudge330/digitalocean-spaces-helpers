@@ -297,7 +297,7 @@ Space class that can be used to manage a single space and its objects.
 - ACL_PUBLIC = 'public-read'
 - ACL_PRIVATE = 'private'
 
-```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
+#### ```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
 
 | Name    | Type   | Optional| Description                  |
 |---------|--------|---------|------------------------------|
@@ -472,7 +472,7 @@ Returns Client.
 
 Class that assists with generating http authorization headers.
 
-```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
+#### ```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
 
 | Name    | Type   | Optional| Description                  |
 |---------|--------|---------|------------------------------|
