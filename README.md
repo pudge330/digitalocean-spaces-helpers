@@ -290,12 +290,12 @@ Returns Client instance.
 
 ### BAG\Spaces\Space
 
+Space class that can be used to manage a single space and its objects.
+
 **Constants**
 
 - ACL_PUBLIC = 'public-read'
 - ACL_PRIVATE = 'private'
-
-Space class that can be used to manage a single space and its objects.
 
 ```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
 
