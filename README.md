@@ -4,6 +4,13 @@ Helper classes to interact with DigitalOcean spaces object storage using the AWS
 
 This library provides common functionality in regards to creating, deleting, and listing Spaces and objects. This library will also facilitate uploading and downloading objects.
 
+This library is fairly new and the api for various methods could change in the upcoming future. I will do my best to document all changes and not introduce breaking changes without notice.
+
+## Upcoming
+
+- Usage examples.
+- Discontinuing use of AWS S3 SDK and implementing fully with http api instead
+
 ## BAG\Spaces\Client
 
 Main client class that can be used to manage spaces and objects.
@@ -243,7 +250,7 @@ Verify HTTP result has particular property.
 
 Create an authorization signature header.
 
-Returns an array. First item being an array of headers, second item are the headers compiled to a string.
+Returns an array. First item being an array of headers use for api authorization, second item is the headers compiled to a string.
 
 | Name       | Type   | Optional| Description                               |
 |------------|--------|---------|-------------------------------------------|
@@ -297,3 +304,185 @@ Space class that can be used to manage a single space and its objects.
 | $secret | string | false   | Spaces api secret            |
 | $region | string | false   | Spaces region, eg. nyc1      |
 | $create | string | true    | Create space if non-existent |
+
+### ```list($keys = false, $arguments = [])```
+
+Get list of objects.
+
+Returns list of objects, false on failure.
+
+| Name       | Type   | Optional| Description              |
+|------------|--------|---------|--------------------------|
+| $keys      | bool   | true    | Return keys only         |
+| $arguments | array  | true    | Additional api arguments |
+
+### ```get($key, $arguments = [])```
+
+Get object.
+
+Returns object, null if not found or false on failure.
+
+| Name       | Type   | Optional| Description              |
+|------------|--------|---------|--------------------------|
+| $key       | string | false   | Object key               |
+| $arguments | array  | true    | Additional api arguments |
+
+### ```exists($key)```
+
+Check if object exists.
+
+Returns true if object exists, false otherwise.
+
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $key   | string | false   | Object key    |
+
+### ```getAcl($key)```
+
+Get an objects ACL.
+
+Return string or false on failure.
+
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $key   | string | false   | Object key    |
+
+### ```setAcl($key, $acl)```
+
+Set an objects ACL.
+
+Returns true or false on failure.
+
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $key   | string | false   | Object key    |
+| $acl   | string | false   | ACL value     |
+
+### ```upload($key, $content, $public = false, $arguments = [])```
+
+Upload content.
+
+Return key as string if successful or false on failure.
+
+| Name       | Type                                                   | Optional| Description              |
+|------------|--------------------------------------------------------|---------|--------------------------|
+| $key       | string                                                 | false   | Object key               |
+| $content   | string<br>resource<br>Psr\Http\Message\StreamInterface | false   | Content to add           |
+| $public    | bool                                                   | true    | Object is public         |
+| $arguments | array                                                  | true    | Additional api arguments |
+
+### ```uploadFile($key, $file, $public = false, $arguments = [])```
+
+Upload file.
+
+Return key as string if successful or false on failure.
+
+| Name       | Type   | Optional| Description              |
+|------------|--------|---------|--------------------------|
+| $key       | string | false   | Object key               |
+| $file      | string | false   | File path on disk        |
+| $public    | bool   | true    | Object is public         |
+| $arguments | array  | true    | Additional api arguments |
+
+### ```multipartUploadFile($key, $file, $public = false, $arguments = [])```
+
+Multipart file upload.
+
+Return key as string if successful or false on failure.
+
+| Name       | Type   | Optional| Description              |
+|------------|--------|---------|--------------------------|
+| $key       | string | false   | Object key               |
+| $file      | string | false   | File path on disk        |
+| $public    | bool   | true    | Object is public         |
+| $arguments | array  | true    | Additional api arguments |
+
+### ```download($key, $destination)```
+
+Downloads a file locally.
+
+Returns true if file downloaded successfully or false on failure.
+
+| Name         | Type   | Optional| Description      |
+|--------------|--------|---------|------------------|
+| $key         | string | false   | Object key       |
+| $destination | string | false   | File destination |
+
+### ```publicUrl($key)```
+
+Get object public URL.
+
+Returns a URL string.
+
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $key   | string | false   | Object key    |
+
+### ```presignedDownload($key, $duration = '+5 minutes')```
+
+Generate a presigned download URL.
+
+Returns presigned download URL as a string.
+
+| Name      | Type   | Optional| Description                                   |
+|-----------|--------|---------|-----------------------------------------------|
+| $key      | string | false   | Object key                                    |
+| $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
+
+### ```presignedUpload($key, $duration = '+5 minutes')```
+
+Generate a presigned upload URL.
+
+Returns presigned upload URL as a string.
+
+| Name      | Type   | Optional| Description                                   |
+|-----------|--------|---------|-----------------------------------------------|
+| $key      | string | false   | Object key                                    |
+| $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
+
+### ```delete($key)```
+
+Delete object.
+
+Returns true on success, false on failure.
+
+| Name   | Type   | Optional| Description   |
+|--------|--------|---------|---------------|
+| $key   | string | false   | Object key    |
+
+### ```baseKey(string $key)```
+
+Get base key. Similar to PHP dirname().
+
+Returns string.
+
+| Name | Type   | Optional| Description |
+|------|--------|---------|-------------|
+| $key | string | false   | Object key  |
+
+### ```getClient()```
+
+Get Client instance.
+
+Returns Client.
+
+## BAG\Spaces\Authorization
+
+Class that assists with generating http authorization headers.
+
+```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
+
+| Name    | Type   | Optional| Description                  |
+|---------|--------|---------|------------------------------|
+| $key    | string | false   | Spaces api key               |
+| $secret | string | false   | Spaces api secret            |
+
+### ```create($arguments)```
+
+Create authorization headers and return full set of headers generated.
+
+Returns an array. First item being an array of headers use for api authorization, second item is the headers compiled to a string.
+
+| Name       | Type  | Optional| Description       |
+|------------|-------|---------|-------------------|
+| $arguments | array | false   | Request arguments |
