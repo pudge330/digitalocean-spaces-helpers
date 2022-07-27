@@ -48,13 +48,13 @@ Returns false if space was deleted, false otherwise.
 
 | Name  | Type   | Optional| Description   |
 |-------|--------|---------|---------------|
-| $name | string | false   | Name of space |
+| $name | string | true    | Name of space |
 
 #### ```listSpaces($names = false)```
 
 Get list of spaces.
 
-Returns list of available spaces.
+Returns array of available spaces.
 
 | Name   | Type | Optional| Description       |
 |--------|------|---------|-------------------|
@@ -74,7 +74,7 @@ Returns true if space exists, false otherwise.
 
 Get list of objects.
 
-Returns list of objects, false on failure.
+Returns array of objects, false on failure.
 
 | Name       | Type   | Optional| Description              |
 |------------|--------|---------|--------------------------|
@@ -228,7 +228,7 @@ Returns true on success, false on failure.
 | $space | string | false   | Name of space |
 | $key   | string | false   | Object key    |
 
-#### ```baseKey(string $key)```
+#### ```baseKey($key)```
 
 Get base key. Similar to PHP dirname().
 
@@ -248,7 +248,7 @@ Verify HTTP result has particular property.
 | $key      | string | false   | Value key     |
 | $default  | mixed  | true    | Default value |
 
-#### ```createAuthorizationSignature($arguments = [])```
+#### ```createAuthorizationSignature($arguments)```
 
 Create an authorization signature header.
 
@@ -297,7 +297,7 @@ Space class that can be used to manage a single space and its objects.
 - ACL_PUBLIC = 'public-read'
 - ACL_PRIVATE = 'private'
 
-#### ```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
+#### ```construct($space, $key, $secret, $region, $create = false)```
 
 | Name    | Type   | Optional| Description                  |
 |---------|--------|---------|------------------------------|
@@ -311,7 +311,7 @@ Space class that can be used to manage a single space and its objects.
 
 Get list of objects.
 
-Returns list of objects, false on failure.
+Returns array of objects, false on failure.
 
 | Name       | Type   | Optional| Description              |
 |------------|--------|---------|--------------------------|
@@ -472,7 +472,7 @@ Returns Client.
 
 Class that assists with generating http authorization headers.
 
-#### ```construct(string $space, string $key, string $secret, string $region, bool $create = false)```
+#### ```construct($key, $secret)```
 
 | Name    | Type   | Optional| Description                  |
 |---------|--------|---------|------------------------------|
