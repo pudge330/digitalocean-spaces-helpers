@@ -198,6 +198,36 @@ class Client {
 	}
 
 	/**
+	 * Get folders.
+	 * 
+	 * @param string $space    Name of space
+	 * @param string $key      Object key
+	 * @param array $arguments Optional. Additional api arguments
+	 * 
+	 * @return object|false|null
+	 */
+	public function listFolders(string $space, ?string $prefix = null, array $arguments = []) {
+		$prefix = $prefix && !preg_match('/\/$/', $prefix) ? "{$prefix}/" : $prefix;
+		$arguments = array_merge($arguments, [
+			'Bucket' => $space,
+			'Delimiter' => '/',
+			'Prefix' => $prefix
+		]);
+		try {
+			$result = $this->client->listObjectsV2($arguments);
+		}
+		catch (Exception $e) {
+			return false;
+		}
+		$this->verifyRequest($result, 'CommonPrefixes');
+		$keys = [];
+		array_walk($result['CommonPrefixes'], function($object, $index) use (&$keys, $prefix) {
+			$keys[] = preg_replace('/^' . preg_quote($prefix, '/') . '|\/$/', '', $object['Prefix']);
+		});
+		return $keys;
+	}
+
+	/**
 	 * Get object.
 	 * 
 	 * @param string $space    Name of space
