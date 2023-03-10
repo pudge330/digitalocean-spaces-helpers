@@ -198,11 +198,11 @@ class Client {
 	}
 
 	/**
-	 * Get folders.
+	 * Get list of folders.
 	 * 
-	 * @param string $space    Name of space
-	 * @param string $key      Object key
-	 * @param array $arguments Optional. Additional api arguments
+	 * @param string $space       Name of space
+	 * @param string|null $prefix Optional. Object key
+	 * @param array $arguments    Optional. Additional api arguments
 	 * 
 	 * @return object|false|null
 	 */
