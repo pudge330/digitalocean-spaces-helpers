@@ -57,6 +57,18 @@ class Space {
 	}
 
 	/**
+	 * Get list of folders.
+	 * 
+	 * @param string|null $prefix Optional. Object key
+	 * @param array $arguments    Optional. Additional api arguments
+	 * 
+	 * @return object|false|null
+	 */
+	public function listFolders(?string $prefix = null, array $arguments = []) {
+		return $this->client->listFolders($this->space, $prefix, $arguments);
+	}
+
+	/**
 	 * Get object.
 	 * 
 	 * @param string $key      Object key
