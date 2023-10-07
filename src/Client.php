@@ -222,7 +222,11 @@ class Client {
 		$this->verifyRequest($result, 'CommonPrefixes');
 		$keys = [];
 		array_walk($result['CommonPrefixes'], function($object, $index) use (&$keys, $prefix) {
-			$keys[] = preg_replace('/^' . preg_quote($prefix, '/') . '|\/$/', '', $object['Prefix']);
+			$keys[] = preg_replace(
+				$prefix ? '/^' . preg_quote($prefix, '/') . '|\/$/' : '/\/$/',
+				'',
+				$object['Prefix']
+			);
 		});
 		return $keys;
 	}
