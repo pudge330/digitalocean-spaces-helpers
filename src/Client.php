@@ -332,6 +332,81 @@ class Client {
 	}
 
 	/**
+	 * Get CORS settings.
+	 * 
+	 * @param string $space Name of space
+	 * 
+	 * @return string|false
+	 */
+	public function getCors($space) {
+		$method = 'GET';
+		$url = "https://{$space}.{$this->region}.digitaloceanspaces.com/?cors";
+		$headers = $this->createAuthorizationSignature([
+			'method' => $method,
+			'url' => $url,
+			'region' => $this->region
+		]);
+		$response = $this->httpClient->request($method, $url, [
+			'headers' => $headers[0]
+		]);
+		if ($response->getStatusCode() !== 200) {
+			return false;
+		}
+		return $response->getContent();
+	}
+
+	/**
+	 * Set CORS settings.
+	 * 
+	 * @param string $space Name of space
+	 * @param string $cors CORS settings
+	 * 
+	 * @return bool
+	 */
+	public function setCors($space, $cors) {
+		$method = 'PUT';
+		$url = "https://{$space}.{$this->region}.digitaloceanspaces.com/?cors";
+		$headers = $this->createAuthorizationSignature([
+			'method' => $method,
+			'url' => $url,
+			'region' => $this->region,
+			'payload' => $cors
+		]);
+		$response = $this->httpClient->request($method, $url, [
+			'headers' => $headers[0],
+			'body' => $cors
+		]);
+		if ($response->getStatusCode() !== 200) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Delete CORS settings.
+	 * 
+	 * @param string $space Name of space
+	 * 
+	 * @return bool
+	 */
+	public function getCors($space) {
+		$method = 'DELETE';
+		$url = "https://{$space}.{$this->region}.digitaloceanspaces.com/?cors";
+		$headers = $this->createAuthorizationSignature([
+			'method' => $method,
+			'url' => $url,
+			'region' => $this->region
+		]);
+		$response = $this->httpClient->request($method, $url, [
+			'headers' => $headers[0]
+		]);
+		if ($response->getStatusCode() !== 204) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Upload content.
 	 * 
 	 * @param string $space    Name of space
