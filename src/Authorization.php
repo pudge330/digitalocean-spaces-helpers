@@ -51,13 +51,13 @@ class Authorization {
 	protected function canonicalSort(array $array) {
 		$empty = $numeric = $lower = $upper = [];
 		foreach ($array as $value) {
-			if (preg_match('/^[0-9]/', $value)) {
+			if ($value && preg_match('/^[0-9]/', $value)) {
 				$numeric[] = $value;
 			}
-			else if (preg_match('/^[A-Z]/', $value)) {
+			else if ($value && preg_match('/^[A-Z]/', $value)) {
 				$upper[] = $value;
 			}
-			else if (preg_match('/^[a-z]/', $value)) {
+			else if ($value && preg_match('/^[a-z]/', $value)) {
 				$lower[] = $value;
 			}
 			else {
