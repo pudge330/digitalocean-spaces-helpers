@@ -19,9 +19,9 @@
     },
     "require": {
         "php": "^8.0",
-        "aws/aws-sdk-php": "^3.222",
-        "symfony/http-client": "^5.4",
-        "symfony/var-dumper": "^5.4"
+        "aws/aws-sdk-php": "^3.325",
+        "symfony/http-client": "^7.1",
+        "symfony/var-dumper": "^6.4"
     },
     "require-dev": {
         "symfony/console": "^5.4"
