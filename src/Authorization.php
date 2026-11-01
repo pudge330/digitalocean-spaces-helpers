@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * This file is part of the DigitalOcean Spaces Helpers package.
  *
@@ -12,8 +14,10 @@
  */
 namespace BAG\Spaces;
 
-use Datetime;
+use DateTimeImmutable;
+use DateTimeZone;
 use Exception;
+use InvalidArgumentException;
 
 /**
  * DigitalOcean Spaces Athorization header helper.
@@ -24,18 +28,18 @@ class Authorization {
 	/**
 	 * @var string Spaces api key
 	 */
-	protected $key;
+	protected string $key;
 
 	/**
 	 * @var string Spaces api secret
 	 */
-	protected $secret;
+	protected string $secret;
 
 	/**
 	 * @param string $key    Spaces api key
 	 * @param string $secret Spaces api secret
 	 */
-	public function __construct($key, $secret) {
+	public function __construct(string $key, string $secret) {
 		$this->key = $key;
 		$this->secret = $secret;
 	}
@@ -48,7 +52,7 @@ class Authorization {
 	 * 
 	 * @return array
 	 */
-	protected function canonicalSort(array $array) {
+	protected function canonicalSort(array $array): array {
 		$empty = $numeric = $lower = $upper = [];
 		foreach ($array as $value) {
 			if ($value && preg_match('/^[0-9]/', $value)) {
@@ -78,9 +82,12 @@ class Authorization {
 	 * 
 	 * @return array
 	 */
-	protected function processUrl(string $url) {
+	protected function processUrl(string $url): array {
 		$url = !preg_match('/^http/', $url) ? "https://{$url}" : $url;
 		$parts = parse_url($url);
+		if ($parts === false || !isset($parts['host'])) {
+			throw new InvalidArgumentException("Invalid URL: {$url}");
+		}
 		if (!array_key_exists('path', $parts)) { $parts['path'] = '/'; }
 		if ($parts['path'] === '') { $parts['path'] = '/'; }
 		if (!array_key_exists('query', $parts)) { $parts['query'] = ''; }
@@ -98,13 +105,13 @@ class Authorization {
 	 * 
 	 * @return string
 	 */
-	protected function processQuery(string $query) {
+	protected function processQuery(string $query): string {
 		$query = explode("&", $query);
 		$grouped = $sortedGrouped = [];
 		$canonicalQuery = '';
 		foreach ($query as $segment) {
 			if ($segment === '') { continue; }
-			$parts = explode("=", $segment);
+			$parts = explode("=", $segment, 2);
 			if (!isset($parts[1])) { $parts[] = null; }
 			if (!array_key_exists($parts[0], $grouped)) { $grouped[$parts[0]] = []; }
 			$grouped[$parts[0]][] = $parts[1];
@@ -129,7 +136,7 @@ class Authorization {
 	 * 
 	 * @return array
 	 */
-	protected function processHeaders(array $headers) {
+	protected function processHeaders(array $headers): array {
 		$sortedKeys = $this->canonicalSort(array_keys($headers));
 		$sortedHeaders = [];
 		$canonicalKeys = '';
@@ -150,8 +157,8 @@ class Authorization {
 	 * 
 	 * @return array
 	 */
-	protected function getDatetime() {
-		$datetime = new Datetime('UTC');
+	protected function getDatetime(): array {
+		$datetime = new DateTimeImmutable('now', new DateTimeZone('UTC'));
 		return [
 			$datetime,
 			$datetime->format('Ymd'),
@@ -166,7 +173,7 @@ class Authorization {
 	 * 
 	 * @return array
 	 */
-	public function create(array $arguments) {
+	public function create(array $arguments): array {
 		$arguments = array_merge([
 			'method' => 'GET',
 			'region' => null,

@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * This file is part of the DigitalOcean Spaces Helpers package.
  *
@@ -12,22 +14,24 @@
  */
 namespace BAG\Spaces;
 
+use Generator;
+
 /**
  * DigitalOcean Spaces helper for specified space.
  */
 class Space {
-	const ACL_PRIVATE = 'private';
-	const ACL_PUBLIC = 'public-read';
+	public const string ACL_PRIVATE = 'private';
+	public const string ACL_PUBLIC = 'public-read';
 
 	/**
 	 * @var string Name of space
 	 */
-	protected $space;
+	protected string $space;
 
 	/**
 	 * @var Client Spaces client instance
 	 */
-	protected $client;
+	protected Client $client;
 
 	/**
 	 * @param string $space    Name of space
@@ -52,8 +56,35 @@ class Space {
 	 * 
 	 * @return array|false
 	 */
-	public function list(bool $keys = false, array $arguments = []) {
+	public function list(bool $keys = false, array $arguments = []): array|false {
 		return $this->client->list($this->space, $keys, $arguments);
+	}
+
+	/**
+	 * Get one cursor-addressable page of objects.
+	 *
+	 * @return array{items: array, isTruncated: bool, nextCursor: string|null}|false
+	 */
+	public function listPage(
+		bool $keys = false,
+		array $arguments = [],
+		?string $cursor = null
+	): array|false {
+		return $this->client->listPage($this->space, $keys, $arguments, $cursor);
+	}
+
+	/**
+	 * Lazily iterate through objects using bounded pagination.
+	 *
+	 * @return Generator<int, array|string>
+	 */
+	public function iterate(
+		bool $keys = false,
+		array $arguments = [],
+		?int $maxItems = null,
+		int $maxPages = 1000
+	): Generator {
+		return $this->client->iterate($this->space, $keys, $arguments, $maxItems, $maxPages);
 	}
 
 	/**
@@ -62,10 +93,43 @@ class Space {
 	 * @param string|null $prefix Optional. Object key
 	 * @param array $arguments    Optional. Additional api arguments
 	 * 
-	 * @return object|false|null
+	 * @return array|false
 	 */
-	public function listFolders(?string $prefix = null, array $arguments = []) {
+	public function listFolders(?string $prefix = null, array $arguments = []): array|false {
 		return $this->client->listFolders($this->space, $prefix, $arguments);
+	}
+
+	/**
+	 * Get one cursor-addressable page of folders.
+	 *
+	 * @return array{items: array, isTruncated: bool, nextCursor: string|null}|false
+	 */
+	public function listFoldersPage(
+		?string $prefix = null,
+		array $arguments = [],
+		?string $cursor = null
+	): array|false {
+		return $this->client->listFoldersPage($this->space, $prefix, $arguments, $cursor);
+	}
+
+	/**
+	 * Lazily iterate through folders using bounded pagination.
+	 *
+	 * @return Generator<int, string>
+	 */
+	public function iterateFolders(
+		?string $prefix = null,
+		array $arguments = [],
+		?int $maxItems = null,
+		int $maxPages = 1000
+	): Generator {
+		return $this->client->iterateFolders(
+			$this->space,
+			$prefix,
+			$arguments,
+			$maxItems,
+			$maxPages
+		);
 	}
 
 	/**
@@ -76,7 +140,7 @@ class Space {
 	 * 
 	 * @return array|false|null
 	 */
-	public function get(string $key, array $arguments = []) {
+	public function get(string $key, array $arguments = []): array|false|null {
 		return $this->client->get($this->space, $key, $arguments);
 	}
 
@@ -87,7 +151,7 @@ class Space {
 	 * 
 	 * @return bool
 	 */
-	public function exists(string $key) {
+	public function exists(string $key): bool {
 		return $this->client->exists($this->space, $key);
 	}
 
@@ -98,7 +162,7 @@ class Space {
 	 * 
 	 * @return string|bool
 	 */
-	public function getAcl(string $key) {
+	public function getAcl(string $key): string|false {
 		return $this->client->getAcl($this->space, $key);
 	}
 
@@ -110,7 +174,7 @@ class Space {
 	 * 
 	 * @return bool
 	 */
-	public function setAcl(string $key, string $acl) {
+	public function setAcl(string $key, string $acl): bool {
 		return $this->client->setAcl($this->space, $key, $acl);
 	}
 
@@ -125,7 +189,7 @@ class Space {
 	 * 
 	 * @return string|false
 	 */
-	public function upload(string $key, $content, bool $public = false, array $arguments = []) {
+	public function upload(string $key, mixed $content, bool $public = false, array $arguments = []): string|false {
 		return $this->client->upload($this->space, $key, $content, $public, $arguments);
 	}
 
@@ -139,7 +203,7 @@ class Space {
 	 * 
 	 * @return string|false
 	 */
-	public function uploadFile(string $key, string $file, bool $public = false, array $arguments = []) {
+	public function uploadFile(string $key, string $file, bool $public = false, array $arguments = []): string|false {
 		return $this->client->uploadFile($this->space, $key, $file, $public, $arguments);
 	}
 
@@ -153,7 +217,7 @@ class Space {
 	 * 
 	 * @return string|false
 	 */
-	public function multipartUploadFile(string $key, string $file, bool $public = false, array $arguments = []) {
+	public function multipartUploadFile(string $key, string $file, bool $public = false, array $arguments = []): string|false {
 		return $this->client->multipartUploadFile($this->space, $key, $file, $public, $arguments);
 	}
 
@@ -165,7 +229,7 @@ class Space {
 	 * 
 	 * @return bool
 	 */
-	public function download(string $key, string $destination) {
+	public function download(string $key, string $destination): bool {
 		return $this->client->download($this->space, $key, $destination);
 	}
 
@@ -176,7 +240,7 @@ class Space {
 	 * 
 	 * @return string
 	 */
-	public function publicUrl(string $key) {
+	public function publicUrl(string $key): string {
 		return $this->client->publicUrl($this->space, $key);
 	}
 
@@ -186,9 +250,9 @@ class Space {
 	 * @param string $key      Object key
 	 * @param string $duration Length of time URL is valid
 	 * 
-	 * @return string|bool
+	 * @return string|false
 	 */
-	public function presignedDownload(string $key, string $duration = '+5 minutes') {
+	public function presignedDownload(string $key, string $duration = '+5 minutes'): string|false {
 		return $this->client->presignedDownload($this->space, $key, $duration);
 	}
 
@@ -199,10 +263,10 @@ class Space {
 	 * @param string $type     File format type
 	 * @param string $duration Length of time URL is valid
 	 * 
-	 * @return string
+	 * @return string|false
 	 */
-	public function presignedUpload(string $key, string $type, string $duration = '+5 minutes') {
-		return $this->client->presignedUpload($this->space, $key, $type, $duration);
+	public function presignedUpload(string $key, string $type, string $duration = '+5 minutes'): string|false {
+		return $this->client->presignedUpload($this->space, $key, $duration, $type);
 	}
 
 	/**
@@ -212,8 +276,8 @@ class Space {
 	 * 
 	 * @return bool
 	 */
-	public function delete(string $key) {
-		$this->client->delete($this->space, $key);
+	public function delete(string $key): bool {
+		return $this->client->delete($this->space, $key);
 	}
 
 	/**
@@ -223,7 +287,7 @@ class Space {
 	 * 
 	 * @return string
 	 */
-	public function baseKey(string $key) {
+	public function baseKey(string $key): string {
 		return $this->client->baseKey($key);
 	}
 
@@ -232,7 +296,7 @@ class Space {
 	 * 
 	 * @return Client
 	 */
-	public function getClient() {
+	public function getClient(): Client {
 		return $this->client;
 	}
 }

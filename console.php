@@ -1,5 +1,7 @@
 #!/usr/bin/env php
 <?php
+declare(strict_types=1);
+
 use Symfony\Component\Console\Application;
 
 define('CONSOLE_ROOT', __DIR__);

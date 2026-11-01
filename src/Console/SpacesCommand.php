@@ -1,38 +1,39 @@
 <?php
+declare(strict_types=1);
+
 namespace BAG\Spaces\Console;
 
 use BAG\Spaces\Client;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Output\NullOutput;
 
+#[AsCommand(
+	name: self::DEFAULT_NAME,
+	description: self::DESCRIPTION,
+)]
 class SpacesCommand extends Command {
-	protected static $defaultName = 'spaces:do';
-	protected static $defaultDescription = 'DigitalOcean spaces api command. Provides basic insert, update, delete, list functionality.';
-	protected $client;
-	protected $customName;
+	private const string DEFAULT_NAME = 'spaces:do';
+	private const string DESCRIPTION = 'DigitalOcean spaces api command. Provides basic insert, update, delete, list functionality.';
 
-	public function __construct(Client $client, string $name = null) {
+	protected Client $client;
+
+	public function __construct(Client $client, ?string $name = null) {
 		$this->client = $client;
-		$this->customName = $name;
-		parent::__construct();
+		parent::__construct($name ?? self::DEFAULT_NAME);
 	}
 
 	protected function configure(): void {
-		// For older versions of Symfony Console
 		$this
-			->setName($this->customName ?: self::$defaultName)
-			->setDescription(self::$defaultDescription)
+			->setDescription(self::DESCRIPTION)
 		;
 
 		$this->addArgument('action', InputArgument::REQUIRED, 'Primary action. Determines additional input arguments/options. (<fg=yellow>space-create, space-delete, space-list, space-exists, list, upload, delete, download, size</>)');
 		$commandName = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : null; 
 		$action = null;
-		if (preg_match('/^' . self::$defaultName . '$/', $commandName)) {
+		if ($commandName === $this->getName()) {
 			$action = isset($_SERVER['argv'][2]) ? $_SERVER['argv'][2] : null;
 		}
 
@@ -140,6 +141,10 @@ class SpacesCommand extends Command {
 
 	protected function executeSpaceListAction(InputInterface $input, OutputInterface $output): int {
 		$spaces = $this->client->listSpaces();
+		if ($spaces === false) {
+			$output->writeln('<fg=red>Failed listing spaces.</>');
+			return Command::FAILURE;
+		}
 		foreach ($spaces as $space) {
 			if ($output->isVerbose()) {
 				$output->writeln($space['Name'] . ' <fg=magenta>' . $space['CreationDate']->format('F j, Y g:i:s A') . ' UTC</> <fg=yellow>(Creation Date)</>');

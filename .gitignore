@@ -1,5 +1,9 @@
 vendor
 composer.lock
+.phpunit.cache/
+.env
+.env.*
+!.env.example
 
 ##--OS files/folders
 */.DS_Store

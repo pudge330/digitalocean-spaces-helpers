@@ -17,13 +17,27 @@
             "BAG\\Spaces\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "BAG\\Spaces\\Tests\\": "tests/"
+        }
+    },
     "require": {
-        "php": "^8.0",
-        "aws/aws-sdk-php": "^3.325",
-        "symfony/http-client": "^7.1",
-        "symfony/var-dumper": "^6.4"
+        "php": ">=8.3",
+        "ext-simplexml": "*",
+        "aws/aws-sdk-php": "^3.402",
+        "symfony/console": "^7.4",
+        "symfony/http-client": "^7.4"
     },
     "require-dev": {
-        "symfony/console": "^5.4"
+        "phpunit/phpunit": "^12.5",
+        "symfony/var-dumper": "^7.4"
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:integration": "php tests/integration.php"
+    },
+    "config": {
+        "sort-packages": true
     }
 }
