@@ -6,6 +6,25 @@ This library provides common functionality in regards to creating, deleting, and
 
 This library is fairly new and the api for various methods could change in the upcoming future. I will do my best to document all changes and not introduce breaking changes without notice.
 
+## Requirements
+
+- PHP 8.3 or newer
+- The SimpleXML extension
+- Composer 2
+
+## Installation
+
+```shell
+composer require bag/digitalocean-spaces-helpers
+```
+
+To run the test suite from a source checkout:
+
+```shell
+composer install
+composer test
+```
+
 ## Upcoming
 
 - Usage examples.
@@ -44,7 +63,7 @@ Returns true if space was created, false if it already existed and on failure.
 
 Delete space.
 
-Returns false if space was deleted, false otherwise.
+Returns true if the space was deleted, false otherwise.
 
 | Name  | Type   | Optional| Description   |
 |-------|--------|---------|---------------|
@@ -72,7 +91,8 @@ Returns true if space exists, false otherwise.
 
 #### ```list($space, $keys = false, $arguments = [])```
 
-Get list of objects.
+Get one page of objects. This method preserves the original API and performs a
+single `ListObjectsV2` request; it does not traverse additional pages.
 
 Returns array of objects, false on failure.
 
@@ -82,11 +102,38 @@ Returns array of objects, false on failure.
 | $keys      | bool   | true    | Return keys only         |
 | $arguments | array  | true    | Additional api arguments |
 
+#### ```listPage($space, $keys = false, $arguments = [], $cursor = null)```
+
+Get one cursor-addressable page of objects. This uses legacy `ListObjects` and
+its `Marker` cursor because DigitalOcean documents ListObjectsV2 pagination as
+unsupported. Pass the returned `nextCursor` to the next call.
+
+Returns an array with `items`, `isTruncated`, and `nextCursor`, or false on
+request failure.
+
+#### ```iterate($space, $keys = false, $arguments = [], $maxItems = null, $maxPages = 1000)```
+
+Lazily iterate over object pages using legacy marker pagination. `maxItems` and
+`maxPages` provide hard limits; a missing or repeated continuation marker
+throws `RuntimeException` instead of looping indefinitely.
+
+```php
+foreach ($client->iterate('my-space', true, ['Prefix' => 'reports/'], maxItems: 100) as $key) {
+    // Process one key without loading the complete listing into memory.
+}
+```
+
+`listFoldersPage()` and `iterateFolders()` provide the equivalent behavior for
+folder prefixes. See DigitalOcean's [Spaces limits documentation](https://docs.digitalocean.com/products/spaces/details/limits/)
+for the compatibility note.
+
 #### ```get($space, $key, $arguments = [])```
 
-Get object.
+Get exact object metadata using `HeadObject`.
 
-Returns object, null if not found or false on failure.
+Returns an array, null if not found, or false on another request failure. The
+array includes `Key` and `Size` compatibility fields in addition to the
+metadata returned by `HeadObject`.
 
 | Name       | Type   | Optional| Description              |
 |------------|--------|---------|--------------------------|
@@ -205,7 +252,7 @@ Returns presigned download URL as a string.
 | $key      | string | false   | Object key                                    |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
 
-#### ```presignedUpload($space, $key, $duration = '+5 minutes')```
+#### ```presignedUpload($space, $key, $duration = '+5 minutes', $contentType = null)```
 
 Generate a presigned upload URL.
 
@@ -216,6 +263,7 @@ Returns presigned upload URL as a string.
 | $space    | string | false   | Name of space                                 |
 | $key      | string | false   | Object key                                    |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
+| $contentType | string|null | true | Content type that the upload request must use |
 
 #### ```delete($space, $key)```
 
@@ -309,7 +357,7 @@ Space class that can be used to manage a single space and its objects.
 
 #### ```list($keys = false, $arguments = [])```
 
-Get list of objects.
+Get one page of objects. This method does not traverse additional pages.
 
 Returns array of objects, false on failure.
 
@@ -318,11 +366,22 @@ Returns array of objects, false on failure.
 | $keys      | bool   | true    | Return keys only         |
 | $arguments | array  | true    | Additional api arguments |
 
+#### ```listPage($keys = false, $arguments = [], $cursor = null)```
+
+Get one page using legacy marker pagination. Returns `items`, `isTruncated`,
+and `nextCursor`, or false on failure.
+
+#### ```iterate($keys = false, $arguments = [], $maxItems = null, $maxPages = 1000)```
+
+Lazily iterate over object pages with explicit item and page safety limits.
+`listFoldersPage()` and `iterateFolders()` provide the same behavior for folder
+prefixes.
+
 #### ```get($key, $arguments = [])```
 
-Get object.
+Get exact object metadata using `HeadObject`.
 
-Returns object, null if not found or false on failure.
+Returns an array, null if not found, or false on another request failure.
 
 | Name       | Type   | Optional| Description              |
 |------------|--------|---------|--------------------------|
@@ -431,7 +490,7 @@ Returns presigned download URL as a string.
 | $key      | string | false   | Object key                                    |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
 
-#### ```presignedUpload($key, $duration = '+5 minutes')```
+#### ```presignedUpload($key, $type, $duration = '+5 minutes')```
 
 Generate a presigned upload URL.
 
@@ -440,6 +499,7 @@ Returns presigned upload URL as a string.
 | Name      | Type   | Optional| Description                                   |
 |-----------|--------|---------|-----------------------------------------------|
 | $key      | string | false   | Object key                                    |
+| $type     | string | false   | Content type that the upload request must use |
 | $duration | string | true    | Length of time URL is valid, eg. '+5 minutes' |
 
 #### ```delete($key)```
