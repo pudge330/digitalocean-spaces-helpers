@@ -58,11 +58,14 @@ try {
 
     $runId = gmdate('Ymd-His') . '-' . bin2hex(random_bytes(4));
     $runPrefix = "{$prefix}/{$runId}";
-    $testKey = "{$runPrefix}/sample.txt";
-    $paginationKey = "{$runPrefix}/pagination-sample.txt";
+    $paginationPrefix = "{$runPrefix}/pagination";
+    $testKey = "{$paginationPrefix}/sample.txt";
+    $paginationKey = "{$paginationPrefix}/pagination-sample.txt";
+    $aclKey = "{$runPrefix}/acl sample +#.txt";
     $testObjects = [
         $testKey => "DigitalOcean Spaces integration test\nRun: {$runId}\n",
         $paginationKey => "DigitalOcean Spaces pagination test\nRun: {$runId}\n",
+        $aclKey => "DigitalOcean Spaces encoded ACL test\nRun: {$runId}\n",
     ];
     $content = $testObjects[$testKey];
 
@@ -116,12 +119,12 @@ try {
     ]);
 
     $firstPage = $client->listPage(TARGET_SPACE, true, [
-        'Prefix' => "{$runPrefix}/",
+        'Prefix' => "{$paginationPrefix}/",
         'MaxKeys' => 1,
     ]);
     $secondPage = is_array($firstPage) && is_string($firstPage['nextCursor'])
         ? $client->listPage(TARGET_SPACE, true, [
-            'Prefix' => "{$runPrefix}/",
+            'Prefix' => "{$paginationPrefix}/",
             'MaxKeys' => 1,
         ], $firstPage['nextCursor'])
         : false;
@@ -129,7 +132,7 @@ try {
         ? array_merge($firstPage['items'], $secondPage['items'])
         : [];
     sort($pagedKeys, SORT_STRING);
-    $expectedKeys = array_keys($testObjects);
+    $expectedKeys = [$testKey, $paginationKey];
     sort($expectedKeys, SORT_STRING);
     $paginationPassed = is_array($firstPage)
         && $firstPage['isTruncated']
@@ -150,7 +153,7 @@ try {
     $iteratedKeys = iterator_to_array($client->iterate(
         TARGET_SPACE,
         true,
-        ['Prefix' => "{$runPrefix}/", 'MaxKeys' => 1],
+        ['Prefix' => "{$paginationPrefix}/", 'MaxKeys' => 1],
         maxItems: 2,
         maxPages: 3
     ));
@@ -213,6 +216,9 @@ try {
     $aclSet = $client->setAcl(TARGET_SPACE, $testKey, Client::ACL_PRIVATE);
     $confirmedAcl = $aclSet ? $client->getAcl(TARGET_SPACE, $testKey) : false;
     $record('set-and-confirm-private-acl', $aclSet && $confirmedAcl === Client::ACL_PRIVATE);
+
+    $encodedKeyAclSet = $client->setAcl(TARGET_SPACE, $aclKey, Client::ACL_PRIVATE);
+    $record('set-private-acl-encoded-key', $encodedKeyAclSet);
 } catch (Throwable $exception) {
     $exitCode = 1;
     $record('integration-run', false, [

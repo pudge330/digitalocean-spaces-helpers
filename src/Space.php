@@ -173,6 +173,7 @@ class Space {
 	 * @param string $acl Acl value
 	 * 
 	 * @return bool
+	 * @throws \RuntimeException When Spaces returns a non-successful HTTP status
 	 */
 	public function setAcl(string $key, string $acl): bool {
 		return $this->client->setAcl($this->space, $key, $acl);

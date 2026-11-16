@@ -167,7 +167,8 @@ Return string or false on failure.
 
 Set an objects ACL.
 
-Returns true or false on failure.
+Returns true on success. Throws `RuntimeException` with the HTTP status and
+response details when Spaces returns a non-2xx response.
 
 | Name   | Type   | Optional| Description   |
 |--------|--------|---------|---------------|
@@ -412,7 +413,8 @@ Return string or false on failure.
 
 Set an objects ACL.
 
-Returns true or false on failure.
+Returns true on success. Throws `RuntimeException` with the HTTP status and
+response details when Spaces returns a non-2xx response.
 
 | Name   | Type   | Optional| Description   |
 |--------|--------|---------|---------------|

@@ -502,11 +502,17 @@ class Client {
 	 * @param string $acl   Acl value
 	 * 
 	 * @return bool
+	 * @throws RuntimeException When Spaces returns a non-successful HTTP status
 	 */
 	public function setAcl(string $space, string $key, string $acl): bool {
 		$acl = $acl === self::ACL_PUBLIC ? self::ACL_PUBLIC : self::ACL_PRIVATE;
 		$method = 'PUT';
-		$url = "https://{$space}.{$this->region}.digitaloceanspaces.com/{$key}?acl";
+
+		// Encode each key segment for the HTTP URL while preserving slash separators.
+		// The same encoded path is then used when generating the SigV4 signature.
+		$encodedKey = implode('/', array_map('rawurlencode', explode('/', $key)));
+		$url = "https://{$space}.{$this->region}.digitaloceanspaces.com/{$encodedKey}?acl";
+
 		$headers = $this->createAuthorizationSignature([
 			'method' => $method,
 			'url' => $url,
@@ -518,7 +524,14 @@ class Client {
 		$response = $this->httpClient->request($method, $url, [
 			'headers' => $headers[0]
 		]);
-		if ($response->getStatusCode() !== 200) { return false; }
+
+		$status = $response->getStatusCode();
+		if ($status < 200 || $status >= 300) {
+			$body = trim($response->getContent(false));
+			$detail = $body !== '' ? ': ' . substr($body, 0, 1000) : '';
+			throw new RuntimeException("Spaces setAcl request failed with HTTP {$status}{$detail}");
+		}
+
 		return true;
 	}
 
